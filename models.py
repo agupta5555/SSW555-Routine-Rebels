@@ -1,10 +1,14 @@
-from extensions import db
 from datetime import datetime
+
+from extensions import db
+
 
 class Habit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
+    # Stored in 24-hour HH:MM format so it can be used directly by time inputs.
+    reminder_time = db.Column(db.String(5), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     completed_dates = db.Column(db.Text)
 
