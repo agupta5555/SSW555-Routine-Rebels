@@ -7,14 +7,13 @@ week so that I can spot patterns in when I'm most consistent.
 
 import pytest
 
-from models import Habit, HabitCompletion
-
 
 @pytest.mark.xfail(reason="US-05: weekly progress chart is not implemented yet")
 def test_us05_view_weekly_progress(client):
     """AC: The weekly summary endpoint returns completion counts per day."""
     # Arrange
     from extensions import db
+    from models import Habit, HabitCompletion
 
     habit = Habit(name="Meditate", description="10 min mindfulness")
     db.session.add(habit)
