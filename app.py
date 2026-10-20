@@ -13,7 +13,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
-from models import Category, Expense, Habit, MoodEntry, Recipe  # noqa: E402
+from models import WEEKDAYS, Category, Expense, Habit, MoodEntry, Recipe  # noqa: E402
 
 
 @app.route('/')
@@ -91,6 +91,22 @@ def update_habit_reminder(habit_id):
             abort(400, description='Reminder time must use the HH:MM format.')
 
     habit.reminder_time = reminder_time or None
+    db.session.commit()
+    return redirect(url_for('habit_tracker'))
+
+
+@app.route('/habit-tracker/<int:habit_id>/schedule', methods=['POST'])
+def update_habit_schedule(habit_id):
+    """Set which days of the week an existing habit is scheduled for."""
+    habit = db.session.get(Habit, habit_id)
+    if habit is None:
+        abort(404)
+
+    selected_days = request.form.getlist('days')
+    if not selected_days or any(day not in WEEKDAYS for day in selected_days):
+        abort(400, description='Select at least one valid day of the week.')
+
+    habit.scheduled_days = ','.join(day for day in WEEKDAYS if day in selected_days)
     db.session.commit()
     return redirect(url_for('habit_tracker'))
 
@@ -190,11 +206,15 @@ def init_db():
     with app.app_context():
         db.create_all()
         # create_all does not add columns to existing SQLite tables.
-        if 'category_id' not in {column['name'] for column in inspect(db.engine).get_columns('habit')}:
+        habit_columns = {column['name'] for column in inspect(db.engine).get_columns('habit')}
+        if 'category_id' not in habit_columns:
             with db.engine.begin() as connection:
                 connection.execute(text(
                     'ALTER TABLE habit ADD COLUMN category_id INTEGER REFERENCES category(id)'
                 ))
+        if 'scheduled_days' not in habit_columns:
+            with db.engine.begin() as connection:
+                connection.execute(text('ALTER TABLE habit ADD COLUMN scheduled_days TEXT'))
 
 if __name__ == '__main__':
     init_db()
