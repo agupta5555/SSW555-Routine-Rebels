@@ -18,11 +18,11 @@ def test_category_is_saved_and_available_for_creation_and_editing(client):
     client.post('/habit-tracker', data={'name': 'Study', 'category_id': category.id})
     habit = Habit.query.filter_by(name='Study').one()
     assert habit.category_id == category.id
-    existing = Habit.query.filter_by(name='Read').one()
-    response = client.post(f'/habit-tracker/{existing.id}/category', data={'category_id': category.id})
+    existing_id = Habit.query.filter_by(name='Read').one().id
+    response = client.post(f'/habit-tracker/{existing_id}/category', data={'category_id': category.id})
     assert response.status_code == 302
     db.session.remove()
-    assert db.session.get(Habit, existing.id).category.name == 'Learning'
+    assert db.session.get(Habit, existing_id).category.name == 'Learning'
     assert b' selected>Learning</option>' in client.get('/habit-tracker').data
 
 
