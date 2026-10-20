@@ -13,7 +13,16 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
-from models import WEEKDAYS, Category, Expense, Habit, MoodEntry, Recipe  # noqa: E402
+from models import (  # noqa: E402
+    DEFAULT_FREQUENCY,
+    HABIT_FREQUENCIES,
+    WEEKDAYS,
+    Category,
+    Expense,
+    Habit,
+    MoodEntry,
+    Recipe,
+)
 
 
 @app.route('/')
@@ -28,7 +37,7 @@ def habit_tracker():
 
         if name:
             habit = Habit(name=name, description=description or None,
-                          category=selected_category())
+                          category=selected_category(), frequency=selected_frequency())
             db.session.add(habit)
             db.session.commit()
 
@@ -36,7 +45,15 @@ def habit_tracker():
 
     habits = Habit.query.order_by(Habit.created_at.desc()).all()
     return render_template('apps/habit_tracker/index.html', page_id='habit-tracker', habits=habits,
-                           categories=Category.query.order_by(Category.name).all())
+                           categories=Category.query.order_by(Category.name).all(),
+                           frequencies=HABIT_FREQUENCIES)
+
+
+def selected_frequency():
+    frequency = request.form.get('frequency', '').strip().lower() or DEFAULT_FREQUENCY
+    if frequency not in HABIT_FREQUENCIES:
+        abort(400, description='Frequency must be daily, weekly, or monthly.')
+    return frequency
 
 
 def selected_category():
@@ -63,6 +80,26 @@ def create_category():
     except IntegrityError:
         db.session.rollback()
         abort(400, description='A category with that name already exists.')
+    return redirect(url_for('habit_tracker'))
+
+
+@app.route('/habit-tracker/<int:habit_id>/edit', methods=['POST'])
+def edit_habit(habit_id):
+    """Update an existing habit's name, description, and frequency."""
+    habit = db.session.get(Habit, habit_id)
+    if habit is None:
+        abort(404)
+
+    name = request.form.get('name', '').strip()
+    if not name or len(name) > 100:
+        abort(400, description='Habit name must contain 1 to 100 characters.')
+    frequency = selected_frequency()
+
+    habit.name = name
+    if 'description' in request.form:
+        habit.description = request.form['description'].strip() or None
+    habit.frequency = frequency
+    db.session.commit()
     return redirect(url_for('habit_tracker'))
 
 
@@ -207,13 +244,16 @@ def init_db():
         db.create_all()
         # create_all does not add columns to existing SQLite tables.
         habit_columns = {column['name'] for column in inspect(db.engine).get_columns('habit')}
-        if 'category_id' not in habit_columns:
-            with db.engine.begin() as connection:
+        with db.engine.begin() as connection:
+            if 'category_id' not in habit_columns:
                 connection.execute(text(
                     'ALTER TABLE habit ADD COLUMN category_id INTEGER REFERENCES category(id)'
                 ))
-        if 'scheduled_days' not in habit_columns:
-            with db.engine.begin() as connection:
+            if 'frequency' not in habit_columns:
+                connection.execute(text(
+                    "ALTER TABLE habit ADD COLUMN frequency VARCHAR(10) NOT NULL DEFAULT 'daily'"
+                ))
+            if 'scheduled_days' not in habit_columns:
                 connection.execute(text('ALTER TABLE habit ADD COLUMN scheduled_days TEXT'))
 
 if __name__ == '__main__':
