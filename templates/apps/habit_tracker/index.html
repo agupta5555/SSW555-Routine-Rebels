@@ -1,83 +1,79 @@
 {% extends "base.html" %}
 
-{% block title %}Habit Tracker • Student Starter Pack{% endblock %}
-
-{% block extra_head %}
-<style>
-    .habit-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-</style>
-{% endblock %}
+{% block title %}Habit Tracker • Routine Rebels{% endblock %}
 
 {% block content %}
 <div class="mb-8">
     <div class="flex items-center gap-4 mb-4">
-        <div class="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl text-white">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="p-3 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)] rounded-xl text-white">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
         </div>
         <div>
-            <h2 class="text-3xl font-bold text-gray-900">Habit Tracker</h2>
-            <p class="text-gray-600">Build better habits, one day at a time</p>
+            <h2 class="text-3xl font-bold text-[var(--color-foreground)]">Habit Tracker</h2>
+            <p class="text-[var(--color-muted-foreground)]">Build better habits, one day at a time</p>
         </div>
     </div>
 </div>
 
-<div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 mb-8 border border-purple-100">
+<div class="bg-[var(--color-muted)] rounded-xl p-6 mb-8 border border-[var(--color-border)]">
     <div class="flex items-start gap-3">
-        <span class="text-2xl">🧘</span>
+        <svg class="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
         <div>
-            <h3 class="font-semibold text-gray-900 mb-1">Zen Mode Active</h3>
-            <p class="text-gray-600 text-sm">This minimalist tracker focuses on consistency and progress. Track your daily habits with a clean, distraction-free interface designed for focus and mindfulness.</p>
+            <h3 class="font-display font-semibold text-[var(--color-foreground)] mb-1">Zen Mode Active</h3>
+            <p class="text-[var(--color-muted-foreground)] text-sm">This minimalist tracker focuses on consistency and progress. Track your daily habits with a clean, distraction-free interface designed for focus and mindfulness.</p>
         </div>
     </div>
 </div>
 
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-    <h3 class="text-lg font-semibold text-gray-900 mb-4">Create a Custom Category</h3>
+<div class="bg-[var(--color-card)] rounded-xl shadow-sm border border-[var(--color-border)] p-6 mb-8">
+    <h3 class="font-display text-lg font-semibold text-[var(--color-foreground)] mb-4">Create a Custom Category</h3>
     <form method="POST" action="{{ url_for('create_category') }}" class="flex flex-wrap items-end gap-3">
         <div>
-            <label for="category-name" class="block text-sm font-medium text-gray-700 mb-2">Category name</label>
+            <label for="category-name" class="block text-sm font-medium text-[var(--color-muted-foreground)] mb-2">Category name</label>
             <input id="category-name" name="name" maxlength="100" required placeholder="e.g., Wellness"
-                class="px-4 py-2 border border-gray-200 rounded-lg">
+                class="px-4 py-2 border border-[var(--color-border)] rounded-lg">
         </div>
-        <button class="px-4 py-2 text-white bg-purple-600 rounded-lg" type="submit">Save Category</button>
+        <button class="px-4 py-2 text-[var(--color-on-primary)] bg-[var(--color-primary)] rounded-lg cursor-pointer hover:opacity-90 transition-opacity duration-200" type="submit">Save Category</button>
     </form>
-    <p class="text-sm text-gray-600 mt-3">Saved categories are available for new and existing habits.</p>
+    <p class="text-sm text-[var(--color-muted-foreground)] mt-3">Saved categories are available for new and existing habits.</p>
 </div>
 
 <div class="grid lg:grid-cols-2 gap-8">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div class="bg-[var(--color-card)] rounded-xl shadow-sm border border-[var(--color-border)] p-6">
         <div class="flex items-center gap-2 mb-6">
-            <span class="text-xl">🌿</span>
-            <h3 class="text-lg font-semibold text-gray-900">Plant a New Habit</h3>
+            <svg class="w-5 h-5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3c-1.5 4-6 5.5-6 10a6 6 0 0012 0c0-1.5-.5-2.5-1-3.5.5 2-1 3.5-2 3.5-1.5 0-1-2-1-3.5-1 1-2 2.5-2 4"></path>
+            </svg>
+            <h3 class="font-display text-lg font-semibold text-[var(--color-foreground)]">Plant a New Habit</h3>
         </div>
         <form method="POST" action="/habit-tracker" class="space-y-4">
             <div>
-                <label for="habit-name" class="block text-sm font-medium text-gray-700 mb-2">Habit Name</label>
+                <label for="habit-name" class="block text-sm font-medium text-[var(--color-muted-foreground)] mb-2">Habit Name</label>
                 <input type="text" id="habit-name" name="name"
-                    class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                    class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg focus:ring-2 focus:ring-[var(--color-ring)] focus:border-transparent transition-all duration-200"
                     placeholder="e.g., Morning Meditation, Daily Reading..." required>
             </div>
             <div>
-                <label for="habit-description" class="block text-sm font-medium text-gray-700 mb-2">Intention</label>
+                <label for="habit-description" class="block text-sm font-medium text-[var(--color-muted-foreground)] mb-2">Intention</label>
                 <textarea id="habit-description" name="description" rows="3"
-                    class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                    class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg focus:ring-2 focus:ring-[var(--color-ring)] focus:border-transparent transition-all duration-200"
                     placeholder="Why is this habit important to you?"></textarea>
             </div>
             <div>
-                <label for="habit-frequency" class="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
-                <select id="habit-frequency" name="frequency" class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+                <label for="habit-frequency" class="block text-sm font-medium text-[var(--color-muted-foreground)] mb-2">Frequency</label>
+                <select id="habit-frequency" name="frequency" class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg">
                     {% for frequency in frequencies %}
                     <option value="{{ frequency }}">{{ frequency|capitalize }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div>
-                <label for="habit-category" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                <select id="habit-category" name="category_id" class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+                <label for="habit-category" class="block text-sm font-medium text-[var(--color-muted-foreground)] mb-2">Category</label>
+                <select id="habit-category" name="category_id" class="w-full px-4 py-2 border border-[var(--color-border)] rounded-lg">
                     <option value="">Uncategorized</option>
                     {% for category in categories %}
                     <option value="{{ category.id }}">{{ category.name }}</option>
@@ -85,9 +81,9 @@
                 </select>
             </div>
             <button type="submit"
-                class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-lg font-medium hover:from-purple-700 hover:to-indigo-700 transform hover:scale-[1.02] transition-all duration-200 shadow-lg">
+                class="w-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-white py-3 rounded-lg font-medium hover:opacity-90 transform hover:scale-[1.02] transition-all duration-200 shadow-lg cursor-pointer">
                 <span class="flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
                     Start New Habit
@@ -96,135 +92,163 @@
         </form>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div class="bg-[var(--color-card)] rounded-xl shadow-sm border border-[var(--color-border)] p-6">
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-2">
-                <span class="text-xl">📊</span>
-                <h3 class="text-lg font-semibold text-gray-900">Your Progress</h3>
+                <svg class="w-5 h-5 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l8-3v13M9 19l-5 2V8l5-2m0 13l8-3M9 6l8 3"></path>
+                </svg>
+                <h3 class="font-display text-lg font-semibold text-[var(--color-foreground)]">Your Progress</h3>
             </div>
             {% if habits %}
-            <span class="text-sm text-gray-500">{{ habits|length }} habit{{ 's' if habits|length != 1 else '' }}</span>
+            <span class="text-sm text-[var(--color-muted-foreground)]">{{ habits|length }} habit{{ 's' if habits|length != 1 else '' }}</span>
             {% endif %}
         </div>
 
         {% if habits %}
             <div class="space-y-3 max-h-96 overflow-y-auto">
                 {% for habit in habits %}
-                <div class="group p-4 rounded-lg border border-gray-100 hover:border-purple-200 hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 transition-all duration-200">
-                    <div class="flex items-start justify-between mb-2">
-                        <div class="flex items-center gap-2">
-                            <span class="text-purple-600">✓</span>
-                            <span class="font-medium text-gray-900 group-hover:text-purple-700">{{ habit.name }}</span>
-                            <span class="text-xs font-medium text-indigo-700 bg-indigo-100 px-2 py-1 rounded-full" data-testid="habit-frequency">
+                <div class="group p-4 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-muted)] transition-colors duration-200">
+                    <div class="flex items-start justify-between mb-2 gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <svg class="w-4 h-4 text-[var(--color-primary)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="font-medium text-[var(--color-foreground)]">{{ habit.name }}</span>
+                            <span class="text-xs font-medium text-[var(--color-on-accent)] bg-[var(--color-accent)] px-2 py-1 rounded-full" data-testid="habit-frequency">
                                 {{ habit.frequency|capitalize }}
                             </span>
                         </div>
-                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                        <span class="text-xs text-[var(--color-muted-foreground)] bg-[var(--color-muted)] px-2 py-1 rounded-full whitespace-nowrap">
                             {{ habit.created_at.strftime('%b %d') }}
                         </span>
                     </div>
                     {% if habit.description %}
-                        <p class="text-sm text-gray-600 ml-6 mb-3 italic border-l-2 border-purple-200 pl-3">
+                        <p class="text-sm text-[var(--color-muted-foreground)] ml-6 mb-3 italic border-l-2 border-[var(--color-border)] pl-3">
                             {{ habit.description }}
                         </p>
                     {% endif %}
-                    <div class="flex gap-3 ml-6">
-                        <span class="inline-flex items-center gap-1 text-xs font-medium bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full">
-                            🔥 0 {{ habit.frequency_period }} streak
+                    <div class="flex flex-wrap gap-2 ml-6 mb-2">
+                        <span class="inline-flex items-center gap-1 text-xs font-medium bg-gradient-to-r from-amber-400 to-orange-500 text-white px-3 py-1 rounded-full">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
+                            </svg>
+                            0 {{ habit.frequency_period }} streak
                         </span>
-                        <span class="inline-flex items-center text-xs font-medium text-green-700 bg-green-100 px-3 py-1 rounded-full">
+                        <span class="inline-flex items-center text-xs font-medium text-[var(--color-on-accent)] bg-[var(--color-accent)] px-3 py-1 rounded-full">
                             0% this {{ habit.frequency_period }}
                         </span>
                     </div>
-                    <form method="POST" action="{{ url_for('edit_habit', habit_id=habit.id) }}"
-                        class="mt-4 ml-6 flex flex-wrap items-end gap-2">
-                        <div>
-                            <label for="habit-name-{{ habit.id }}" class="block text-xs font-medium text-gray-600 mb-1">Name</label>
-                            <input type="text" id="habit-name-{{ habit.id }}" name="name" value="{{ habit.name }}"
-                                maxlength="100" required class="px-3 py-2 text-sm border border-gray-200 rounded-lg">
+                    <div class="ml-6 space-y-1">
+                        {% if habit.reminder_time %}
+                            <p class="flex items-center gap-1.5 text-sm font-medium text-[var(--color-primary)]" data-testid="habit-reminder">
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Reminder set for {{ habit.reminder_time }}
+                            </p>
+                        {% endif %}
+                        {% if habit.scheduled_days_list %}
+                            <p class="flex items-center gap-1.5 text-sm font-medium text-[var(--color-primary)]" data-testid="habit-schedule">
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                Scheduled: {{ habit.scheduled_days_list|join(', ') }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <details class="mt-3 ml-6">
+                        <summary class="text-sm font-medium text-[var(--color-primary)] cursor-pointer select-none inline-flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Edit habit
+                        </summary>
+
+                        <div class="mt-3 space-y-4">
+                            <form method="POST" action="{{ url_for('edit_habit', habit_id=habit.id) }}"
+                                class="flex flex-wrap items-end gap-2">
+                                <div>
+                                    <label for="habit-name-{{ habit.id }}" class="block text-xs font-medium text-[var(--color-muted-foreground)] mb-1">Name</label>
+                                    <input type="text" id="habit-name-{{ habit.id }}" name="name" value="{{ habit.name }}"
+                                        maxlength="100" required class="px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg">
+                                </div>
+                                <div>
+                                    <label for="habit-frequency-{{ habit.id }}" class="block text-xs font-medium text-[var(--color-muted-foreground)] mb-1">Frequency</label>
+                                    <select id="habit-frequency-{{ habit.id }}" name="frequency" class="px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg">
+                                        {% for frequency in frequencies %}
+                                        <option value="{{ frequency }}"{% if habit.frequency == frequency %} selected{% endif %}>{{ frequency|capitalize }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <button type="submit" class="px-3 py-2 text-sm font-medium text-white bg-[var(--color-primary)] rounded-lg cursor-pointer hover:opacity-90 transition-opacity duration-200">Save Habit</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('update_habit_category', habit_id=habit.id) }}"
+                                class="flex flex-wrap items-end gap-2">
+                                <div>
+                                    <label for="habit-category-{{ habit.id }}" class="block text-xs font-medium text-[var(--color-muted-foreground)] mb-1">Category</label>
+                                    <select id="habit-category-{{ habit.id }}" name="category_id" class="px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg">
+                                        <option value="">Uncategorized</option>
+                                        {% for category in categories %}
+                                        <option value="{{ category.id }}"{% if habit.category_id == category.id %} selected{% endif %}>{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <button type="submit" class="px-3 py-2 text-sm font-medium text-white bg-[var(--color-primary)] rounded-lg cursor-pointer hover:opacity-90 transition-opacity duration-200">Save Category</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('update_habit_reminder', habit_id=habit.id) }}"
+                                class="flex flex-wrap items-end gap-2">
+                                <div>
+                                    <label for="reminder-time-{{ habit.id }}" class="block text-xs font-medium text-[var(--color-muted-foreground)] mb-1">
+                                        Optional reminder
+                                    </label>
+                                    <input type="time" id="reminder-time-{{ habit.id }}" name="reminder_time"
+                                        value="{{ habit.reminder_time or '' }}"
+                                        class="px-3 py-2 text-sm border border-[var(--color-border)] rounded-lg focus:ring-2 focus:ring-[var(--color-ring)] focus:border-transparent">
+                                </div>
+                                <button type="submit"
+                                    class="px-3 py-2 text-sm font-medium text-white bg-[var(--color-primary)] rounded-lg cursor-pointer hover:opacity-90 transition-opacity duration-200">
+                                    Save Reminder
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('update_habit_schedule', habit_id=habit.id) }}">
+                                <label class="block text-xs font-medium text-[var(--color-muted-foreground)] mb-1">Scheduled days</label>
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    {% for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %}
+                                    <label class="flex items-center gap-1 text-xs text-[var(--color-muted-foreground)]">
+                                        <input type="checkbox" name="days" value="{{ day }}"
+                                            {% if day in habit.scheduled_days_list %}checked{% endif %}>
+                                        {{ day }}
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                                <button type="submit" class="px-3 py-2 text-sm font-medium text-white bg-[var(--color-primary)] rounded-lg cursor-pointer hover:opacity-90 transition-opacity duration-200">
+                                    Save Schedule
+                                </button>
+                            </form>
                         </div>
-                        <div>
-                            <label for="habit-frequency-{{ habit.id }}" class="block text-xs font-medium text-gray-600 mb-1">Frequency</label>
-                            <select id="habit-frequency-{{ habit.id }}" name="frequency" class="px-3 py-2 text-sm border border-gray-200 rounded-lg">
-                                {% for frequency in frequencies %}
-                                <option value="{{ frequency }}"{% if habit.frequency == frequency %} selected{% endif %}>{{ frequency|capitalize }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <button type="submit" class="px-3 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg">Save Habit</button>
-                    </form>
-                    <form method="POST" action="{{ url_for('update_habit_category', habit_id=habit.id) }}"
-                        class="mt-4 ml-6 flex flex-wrap items-end gap-2">
-                        <div>
-                            <label for="habit-category-{{ habit.id }}" class="block text-xs font-medium text-gray-600 mb-1">Category</label>
-                            <select id="habit-category-{{ habit.id }}" name="category_id" class="px-3 py-2 text-sm border border-gray-200 rounded-lg">
-                                <option value="">Uncategorized</option>
-                                {% for category in categories %}
-                                <option value="{{ category.id }}"{% if habit.category_id == category.id %} selected{% endif %}>{{ category.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <button type="submit" class="px-3 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg">Save Category</button>
-                    </form>
-                    <form method="POST" action="{{ url_for('update_habit_reminder', habit_id=habit.id) }}"
-                        class="mt-4 ml-6 flex flex-wrap items-end gap-2">
-                        <div>
-                            <label for="reminder-time-{{ habit.id }}" class="block text-xs font-medium text-gray-600 mb-1">
-                                Optional reminder
-                            </label>
-                            <input type="time" id="reminder-time-{{ habit.id }}" name="reminder_time"
-                                value="{{ habit.reminder_time or '' }}"
-                                class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                        </div>
-                        <button type="submit"
-                            class="px-3 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors">
-                            Save Reminder
-                        </button>
-                    </form>
-                    {% if habit.reminder_time %}
-                        <p class="mt-2 ml-6 text-sm font-medium text-purple-700" data-testid="habit-reminder">
-                            ⏰ Reminder set for {{ habit.reminder_time }}
-                        </p>
-                    {% endif %}
-                    <form method="POST" action="{{ url_for('update_habit_schedule', habit_id=habit.id) }}"
-                        class="mt-4 ml-6">
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Scheduled days</label>
-                        <div class="flex flex-wrap gap-2 mb-2">
-                            {% for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %}
-                            <label class="flex items-center gap-1 text-xs text-gray-700">
-                                <input type="checkbox" name="days" value="{{ day }}"
-                                    {% if day in habit.scheduled_days_list %}checked{% endif %}>
-                                {{ day }}
-                            </label>
-                            {% endfor %}
-                        </div>
-                        <button type="submit" class="px-3 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors">
-                            Save Schedule
-                        </button>
-                    </form>
-                    {% if habit.scheduled_days_list %}
-                        <p class="mt-2 ml-6 text-sm font-medium text-purple-700" data-testid="habit-schedule">
-                            📅 Scheduled: {{ habit.scheduled_days_list|join(', ') }}
-                        </p>
-                    {% endif %}
+                    </details>
                 </div>
                 {% endfor %}
             </div>
         {% else %}
             <div class="text-center py-12">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full mb-4">
-                    <span class="text-2xl">🌱</span>
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-muted)] rounded-full mb-4">
+                    <svg class="w-7 h-7 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3c-1.5 4-6 5.5-6 10a6 6 0 0012 0c0-1.5-.5-2.5-1-3.5.5 2-1 3.5-2 3.5-1.5 0-1-2-1-3.5-1 1-2 2.5-2 4"></path>
+                    </svg>
                 </div>
-                <p class="text-gray-500 mb-2">No habits yet</p>
-                <p class="text-sm text-gray-400">Plant your first habit seed and watch it grow into a consistent routine.</p>
+                <p class="text-[var(--color-muted-foreground)] mb-2">No habits yet</p>
+                <p class="text-sm text-[var(--color-muted-foreground)]">Plant your first habit seed and watch it grow into a consistent routine.</p>
             </div>
         {% endif %}
     </div>
 </div>
 
-<div class="mt-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-8 text-white">
+<div class="mt-8 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] rounded-xl p-8 text-white">
     <div class="max-w-3xl mx-auto text-center">
-        <h3 class="text-2xl font-bold mb-2">Did You Know?</h3>
+        <h3 class="font-display text-2xl font-bold mb-2">Did You Know?</h3>
         <p class="opacity-90">It takes an average of 66 days to form a new habit. Start small, stay consistent, and celebrate your progress!</p>
     </div>
 </div>
