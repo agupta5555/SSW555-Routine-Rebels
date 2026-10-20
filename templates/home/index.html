@@ -3,33 +3,34 @@
 {% block title %}Routine Rebels{% endblock %}
 
 {% block content %}
-<div class="text-center mb-12">
-    <div class="inline-block mb-6">
-        <div class="flex items-center justify-center w-24 h-24 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)] rounded-full shadow-2xl">
-            <svg class="w-11 h-11 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3c-1.5 4-6 5.5-6 10a6 6 0 0012 0c0-1.5-.5-2.5-1-3.5.5 2-1 3.5-2 3.5-1.5 0-1-2-1-3.5-1 1-2 2.5-2 4"></path>
-            </svg>
-        </div>
+<div class="text-center max-w-2xl mx-auto mb-14">
+    <div class="inline-flex items-center justify-center w-20 h-20 bg-[var(--color-card)] border border-[var(--color-border)] rounded-full shadow-sm mb-6">
+        <svg class="w-10 h-10 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 21s-6-4.35-6-9.5C6 7.5 8.5 5 12 5s6 2.5 6 6.5c0 5.15-6 9.5-6 9.5z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 10.5v6"></path>
+        </svg>
     </div>
-    <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] bg-clip-text text-transparent">
+    <h1 class="text-4xl sm:text-5xl font-bold mb-4 text-[var(--color-foreground)]">
         Routine Rebels
     </h1>
-    <p class="text-xl text-[var(--color-muted-foreground)] mb-8">Build better habits, one day at a time.</p>
+    <p class="text-lg text-[var(--color-muted-foreground)] mb-8">A calm, focused space to build habits that actually stick.</p>
 
-    <a href="/habit-tracker" class="inline-flex items-center gap-2 px-8 py-4 bg-[var(--color-primary)] text-[var(--color-on-primary)] rounded-lg font-semibold text-lg hover:opacity-90 transition-opacity duration-200 shadow-lg cursor-pointer">
+    <a href="/habit-tracker" class="inline-flex items-center gap-2 px-7 py-3.5 bg-[var(--color-primary)] text-[var(--color-on-primary)] rounded-full font-semibold hover:brightness-105 transition-[filter] duration-200 shadow-sm cursor-pointer">
         Open Habit Tracker
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
     </a>
 </div>
 
-<div class="bg-[var(--color-muted)] rounded-xl p-6 border border-[var(--color-border)]">
-    <div class="flex items-start gap-3">
-        <svg class="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-        </svg>
+<div class="max-w-2xl mx-auto bg-[var(--color-card)] rounded-2xl p-6 border border-[var(--color-border)] shadow-sm">
+    <div class="flex items-start gap-4">
+        <div class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-full bg-[var(--color-muted)]">
+            <svg class="w-4.5 h-4.5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
         <div>
-            <h3 class="font-display font-semibold text-[var(--color-foreground)] mb-1">Zen Mode Active</h3>
-            <p class="text-[var(--color-muted-foreground)] text-sm">Track daily habits, set custom categories and reminders, schedule which days a habit applies to, and watch your streaks grow — all in one clean, distraction-free tracker.</p>
+            <h3 class="font-display font-semibold text-[var(--color-foreground)] mb-1">One clean tracker, nothing else</h3>
+            <p class="text-[var(--color-muted-foreground)] text-sm leading-relaxed">Custom categories, reminders, weekly schedules, and streaks — all in one distraction-free page designed to get out of your way.</p>
         </div>
     </div>
 </div>
