@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from flask import Flask, abort, redirect, render_template, request, url_for
-
 from sqlalchemy import inspect, text
 from sqlalchemy.exc import IntegrityError
 
