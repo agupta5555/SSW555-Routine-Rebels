@@ -1,5 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for
 import os
+from datetime import datetime
+
+from flask import Flask, abort, redirect, render_template, request, url_for
 
 from extensions import db
 
@@ -10,7 +12,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
-from models import Habit, MoodEntry, Expense, Recipe  # noqa: E402
+from models import Expense, Habit, MoodEntry, Recipe  # noqa: E402
+
 
 @app.route('/')
 def home():
@@ -31,6 +34,25 @@ def habit_tracker():
 
     habits = Habit.query.order_by(Habit.created_at.desc()).all()
     return render_template('apps/habit_tracker/index.html', page_id='habit-tracker', habits=habits)
+
+
+@app.route('/habit-tracker/<int:habit_id>/reminder', methods=['POST'])
+def update_habit_reminder(habit_id):
+    """Attach, update, or remove an optional reminder from an existing habit."""
+    habit = db.session.get(Habit, habit_id)
+    if habit is None:
+        abort(404)
+
+    reminder_time = request.form.get('reminder_time', '').strip()
+    if reminder_time:
+        try:
+            datetime.strptime(reminder_time, '%H:%M')
+        except ValueError:
+            abort(400, description='Reminder time must use the HH:MM format.')
+
+    habit.reminder_time = reminder_time or None
+    db.session.commit()
+    return redirect(url_for('habit_tracker'))
 
 @app.route('/mood-journal', methods=['GET', 'POST'])
 def mood_journal():

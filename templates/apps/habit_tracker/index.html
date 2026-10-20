@@ -103,6 +103,26 @@
                             0% this week
                         </span>
                     </div>
+                    <form method="POST" action="{{ url_for('update_habit_reminder', habit_id=habit.id) }}"
+                        class="mt-4 ml-6 flex flex-wrap items-end gap-2">
+                        <div>
+                            <label for="reminder-time-{{ habit.id }}" class="block text-xs font-medium text-gray-600 mb-1">
+                                Optional reminder
+                            </label>
+                            <input type="time" id="reminder-time-{{ habit.id }}" name="reminder_time"
+                                value="{{ habit.reminder_time or '' }}"
+                                class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <button type="submit"
+                            class="px-3 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors">
+                            Save Reminder
+                        </button>
+                    </form>
+                    {% if habit.reminder_time %}
+                        <p class="mt-2 ml-6 text-sm font-medium text-purple-700" data-testid="habit-reminder">
+                            ⏰ Reminder set for {{ habit.reminder_time }}
+                        </p>
+                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
