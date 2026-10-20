@@ -155,6 +155,10 @@ def init_db():
             if 'scheduled_days' not in habit_columns:
                 connection.execute(text('ALTER TABLE habit ADD COLUMN scheduled_days TEXT'))
 
+# Called at import time so the schema exists under `flask run` too, not just
+# `python app.py` — `flask run` imports this module without ever reaching
+# the __main__ block below.
+init_db()
+
 if __name__ == '__main__':
-    init_db()
     app.run(debug=True)
