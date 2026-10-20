@@ -8,6 +8,9 @@ class Category(db.Model):
     name = db.Column(db.String(100, collation='NOCASE'), nullable=False, unique=True)
 
 
+#: Canonical order used whenever scheduled days are saved or displayed.
+WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
 # How often a habit is meant to be completed, mapped to the period used for
 # streak and progress calculations.
 HABIT_FREQUENCIES = {'daily': 'day', 'weekly': 'week', 'monthly': 'month'}
@@ -26,6 +29,14 @@ class Habit(db.Model):
                           server_default=DEFAULT_FREQUENCY)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     completed_dates = db.Column(db.Text)
+    # Comma-separated subset of WEEKDAYS. Empty/None means no schedule has been set yet.
+    scheduled_days = db.Column(db.Text)
+
+    @property
+    def scheduled_days_list(self):
+        if not self.scheduled_days:
+            return []
+        return self.scheduled_days.split(",")
 
     @property
     def frequency_period(self):

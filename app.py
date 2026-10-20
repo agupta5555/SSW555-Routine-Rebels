@@ -16,6 +16,7 @@ db.init_app(app)
 from models import (  # noqa: E402
     DEFAULT_FREQUENCY,
     HABIT_FREQUENCIES,
+    WEEKDAYS,
     Category,
     Expense,
     Habit,
@@ -130,6 +131,22 @@ def update_habit_reminder(habit_id):
     db.session.commit()
     return redirect(url_for('habit_tracker'))
 
+
+@app.route('/habit-tracker/<int:habit_id>/schedule', methods=['POST'])
+def update_habit_schedule(habit_id):
+    """Set which days of the week an existing habit is scheduled for."""
+    habit = db.session.get(Habit, habit_id)
+    if habit is None:
+        abort(404)
+
+    selected_days = request.form.getlist('days')
+    if not selected_days or any(day not in WEEKDAYS for day in selected_days):
+        abort(400, description='Select at least one valid day of the week.')
+
+    habit.scheduled_days = ','.join(day for day in WEEKDAYS if day in selected_days)
+    db.session.commit()
+    return redirect(url_for('habit_tracker'))
+
 @app.route('/mood-journal', methods=['GET', 'POST'])
 def mood_journal():
     if request.method == 'POST':
@@ -236,6 +253,8 @@ def init_db():
                 connection.execute(text(
                     "ALTER TABLE habit ADD COLUMN frequency VARCHAR(10) NOT NULL DEFAULT 'daily'"
                 ))
+            if 'scheduled_days' not in habit_columns:
+                connection.execute(text('ALTER TABLE habit ADD COLUMN scheduled_days TEXT'))
 
 if __name__ == '__main__':
     init_db()

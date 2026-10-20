@@ -186,6 +186,27 @@
                             ⏰ Reminder set for {{ habit.reminder_time }}
                         </p>
                     {% endif %}
+                    <form method="POST" action="{{ url_for('update_habit_schedule', habit_id=habit.id) }}"
+                        class="mt-4 ml-6">
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Scheduled days</label>
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            {% for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %}
+                            <label class="flex items-center gap-1 text-xs text-gray-700">
+                                <input type="checkbox" name="days" value="{{ day }}"
+                                    {% if day in habit.scheduled_days_list %}checked{% endif %}>
+                                {{ day }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                        <button type="submit" class="px-3 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors">
+                            Save Schedule
+                        </button>
+                    </form>
+                    {% if habit.scheduled_days_list %}
+                        <p class="mt-2 ml-6 text-sm font-medium text-purple-700" data-testid="habit-schedule">
+                            📅 Scheduled: {{ habit.scheduled_days_list|join(', ') }}
+                        </p>
+                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
