@@ -121,6 +121,16 @@ class Habit(db.Model):
     def current_streak(self, today=None):
         return self.streak_status(today)[0]
 
+    def is_scheduled_on(self, day):
+        """True if ``day`` is one of the habit's scheduled weekdays (any day when unscheduled)."""
+        scheduled = self.scheduled_days_list
+        return not scheduled or WEEKDAYS[day.weekday()] in scheduled
+
+    @property
+    def recent_completions(self):
+        """The five most recent completion dates, newest first."""
+        return sorted(set(self.completed_dates_list), reverse=True)[:5]
+
 
 def calculate_streak_status(completed_dates, today, grace_day=False, scheduled_days=None):
     """Use one grace day per Mon-Sun week, considering only scheduled days.

@@ -183,6 +183,26 @@ def update_habit_schedule(habit_id):
     db.session.commit()
     return redirect(url_for('habit_tracker'))
 
+@app.route('/habit-tracker/<int:habit_id>/check-in', methods=['POST'])
+def log_check_in(habit_id):
+    """Record a completion for today or back-fill one for a missed past date."""
+    habit = db.session.get(Habit, habit_id)
+    if habit is None:
+        abort(404)
+
+    try:
+        completed_on = date.fromisoformat(request.form.get('completed_on', '').strip())
+    except ValueError:
+        abort(400, description='Check-in date must use the YYYY-MM-DD format.')
+    if completed_on > date.today():
+        abort(400, description='Check-ins cannot be logged for future dates.')
+    if not habit.is_scheduled_on(completed_on):
+        abort(400, description='Check-ins can only be logged for scheduled days.')
+
+    habit.mark_complete(completed_on)
+    return redirect(url_for('habit_tracker'))
+
+
 @app.route('/habit-tracker/<int:habit_id>/grace-day', methods=['POST'])
 def update_habit_grace_day(habit_id):
     """Turn the weekly grace day on or off for an existing habit."""
