@@ -13,6 +13,16 @@ monitor their progress, and build consistent routines.
 - Aarnav Hariramani
 - Ayush Kakkar
 
+## Log in (US-28)
+
+Choose **Log in** to sign in with an existing username and password. Valid
+credentials start a session and return you to the habit tracker dashboard;
+invalid credentials show a single generic error without revealing whether the
+username exists. Username matching is case-insensitive, matching account
+creation (US-27).
+
+Regression tests: `uv run pytest tests/test_us28_log_in.py`.
+
 ## Record a habit completion (US-08)
 
 On the Habit Tracker, choose **Mark complete** for a habit due today. The
@@ -21,6 +31,38 @@ completion is saved for the server's current date and the card shows
 Habits with selected weekdays can only be completed on those days; habits
 without a weekday schedule are available every day. Frequency continues to
 define the progress/streak period independently of the weekday schedule.
+
+## History after habit edits
+
+Changing a habit's name, frequency, scheduled weekdays, category, or reminder
+keeps the same habit and all its recorded completion dates. Previous check-ins
+remain visible in recent history and through
+`/habit-tracker/habits/<habit_id>/history`, including date-range queries.
+Dates outside a newly selected schedule remain in history. Streak calculations
+use the current schedule, so changing weekdays can change the displayed streak;
+the app does not store earlier versions of schedules. New check-ins use the
+current schedule and retain existing completions.
+
+Regression tests: `uv run pytest tests/test_preserve_habit_history.py`.
+
+## Change a habit's schedule (US-21)
+
+Choose new scheduled days for an existing habit and save them to update which
+weekdays it is due on going forward. Future check-ins and the dashboard's
+"due today" view follow the new schedule immediately. The current streak is
+recalculated against the new schedule, and completions recorded outside of it
+remain in history.
+
+Regression tests: `uv run pytest tests/test_us21_change_habit_schedule.py`.
+
+## Delete a habit
+
+Choose **Delete habit** on a habit card, then **Delete permanently** on the
+confirmation page. **Cancel** returns to the tracker without changing the habit.
+Deletion permanently removes the habit, its completion history, and its active
+or paused reminder. Other habits and shared categories remain unchanged.
+
+Regression tests: `uv run pytest tests/test_delete_habit.py`.
 
 ## Local development
 

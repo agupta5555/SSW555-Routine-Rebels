@@ -2,6 +2,7 @@ import json
 from datetime import date, datetime, timedelta
 
 from sqlalchemy import select, update
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from extensions import db
 
@@ -23,6 +24,20 @@ class Category(db.Model):
     name = db.Column(db.String(100, collation='NOCASE'), nullable=False, unique=True)
 
 
+class User(db.Model):
+    """US-27: a registered account. Only a salted hash of the password is stored."""
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(30, collation='NOCASE'), nullable=False, unique=True)
+    password_hash = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+
 #: Canonical order used whenever scheduled days are saved or displayed.
 WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
@@ -40,6 +55,8 @@ class Habit(db.Model):
     category = db.relationship("Category")
     # Stored in 24-hour HH:MM format so it can be used directly by time inputs.
     reminder_time = db.Column(db.String(5), nullable=True)
+    # US-23: a turned-off reminder keeps its time here so it can be turned back on.
+    paused_reminder_time = db.Column(db.String(5), nullable=True)
     frequency = db.Column(db.String(10), nullable=False, default=DEFAULT_FREQUENCY,
                           server_default=DEFAULT_FREQUENCY)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -66,9 +83,31 @@ class Habit(db.Model):
             "category": self.category.name if self.category else None,
             "frequency": self.frequency,
             "reminder_time": self.reminder_time,
+            "reminder_on": self.reminder_on,
             "scheduled_days": self.scheduled_days_list,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
+
+    @property
+    def reminder_on(self):
+        """US-23: True while the habit has an active reminder."""
+        return self.reminder_time is not None
+
+    def turn_off_reminder(self):
+        """US-23: stop the reminder but remember its time."""
+        if self.reminder_time:
+            self.paused_reminder_time = self.reminder_time
+            self.reminder_time = None
+
+    def turn_on_reminder(self):
+        """US-23: restore a turned-off reminder. Returns False if there is none to restore."""
+        if self.reminder_time:
+            return True
+        if not self.paused_reminder_time:
+            return False
+        self.reminder_time = self.paused_reminder_time
+        self.paused_reminder_time = None
+        return True
 
     @property
     def frequency_period(self):
@@ -106,6 +145,33 @@ class Habit(db.Model):
                 return True
             db.session.rollback()
 
+    def remove_completion(self, day):
+        """US-25: remove a completed day, retrying if another request changes the history.
+
+        Returns False when ``day`` was not marked complete. Uses the same
+        compare-and-swap UPDATE as ``mark_complete`` so concurrent requests
+        cannot overwrite each other.
+        """
+        day_string = day.isoformat()
+        while True:
+            previous = db.session.execute(
+                select(Habit.completed_dates).where(Habit.id == self.id)
+            ).scalar_one()
+            dates = _parse_completion_dates(previous)
+            if day_string not in dates:
+                return False
+            result = db.session.execute(
+                update(Habit)
+                .where(Habit.id == self.id, Habit.completed_dates == previous)
+                .values(completed_dates=json.dumps([d for d in dates if d != day_string]))
+                .execution_options(synchronize_session=False)
+            )
+            if result.rowcount == 1:
+                db.session.commit()
+                db.session.expire(self, ['completed_dates'])
+                return True
+            db.session.rollback()
+
     @property
     def completed_dates_list(self):
         """Completion dates as date objects (JSON or legacy comma-separated history)."""
@@ -133,7 +199,11 @@ class Habit(db.Model):
 
 
     def completion_history(self, start=None, end=None):
-        """US-16: every completed day, newest first, optionally limited to a date range."""
+        """Every recorded day, newest first, optionally limited to a date range.
+
+        History is independent of the current schedule: editing a habit must
+        not hide completions that fall outside its new scheduled weekdays.
+        """
         return sorted(
             {day for day in self.completed_dates_list
              if (start is None or day >= start) and (end is None or day <= end)},
@@ -153,6 +223,30 @@ class Habit(db.Model):
         }
         completed = scheduled_dates.intersection(self.completed_dates_list)
         return {'scheduled': len(scheduled_dates), 'completed': len(completed)}
+      
+    def calendar_days(self, as_of=None, number_of_days=30):
+        """US-17: classify consecutive days for the habit calendar.
+
+        Completed days take precedence even if an older schedule has since
+        changed. A scheduled day is only missed after it has ended; the current
+        day remains available for completion.
+        """
+        as_of = as_of or date.today()
+        completions = set(self.completed_dates_list)
+        first_day = as_of - timedelta(days=number_of_days - 1)
+        days = []
+        for offset in range(number_of_days):
+            day = first_day + timedelta(days=offset)
+            if day in completions:
+                status = 'completed'
+            elif not self.is_scheduled_on(day):
+                status = 'not-scheduled'
+            elif day < as_of:
+                status = 'missed'
+            else:
+                status = 'scheduled'
+            days.append({'date': day, 'status': status})
+        return days
 
 def calculate_streak_status(completed_dates, today, grace_day=False, scheduled_days=None):
     """Use one grace day per Mon-Sun week, considering only scheduled days.

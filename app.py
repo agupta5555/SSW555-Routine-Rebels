@@ -1,6 +1,8 @@
 from datetime import date, datetime, timedelta
+import re
 
-from flask import Flask, abort, jsonify, redirect, render_template, request, url_for
+
+from flask import Flask, abort, flash, jsonify, redirect, render_template, request, session, url_for
 from sqlalchemy import inspect, text
 from sqlalchemy.exc import IntegrityError
 
@@ -13,12 +15,80 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
-from models import DEFAULT_FREQUENCY, HABIT_FREQUENCIES, WEEKDAYS, Category, Habit  # noqa: E402
+from models import (  # noqa: E402
+    DEFAULT_FREQUENCY,
+    HABIT_FREQUENCIES,
+    WEEKDAYS,
+    Category,
+    Habit,
+    User,
+)
 
 
 @app.route('/')
 def home():
     return render_template('home/index.html', page_id='home')
+
+USERNAME_PATTERN = re.compile(r'[A-Za-z0-9_.-]{3,30}')
+MIN_PASSWORD_LENGTH = 8
+MAX_PASSWORD_LENGTH = 128
+
+
+def registration_errors(username, password, confirm):
+    errors = []
+    if not USERNAME_PATTERN.fullmatch(username):
+        errors.append('Username must be 3 to 30 letters, numbers, dots, dashes, or underscores.')
+    if not MIN_PASSWORD_LENGTH <= len(password) <= MAX_PASSWORD_LENGTH:
+        errors.append(f'Password must be {MIN_PASSWORD_LENGTH} to {MAX_PASSWORD_LENGTH} characters.')
+    if password != confirm:
+        errors.append('Passwords do not match.')
+    return errors
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """US-27: create an account with a username and a securely hashed password."""
+    if request.method == 'GET':
+        return render_template('auth/register.html', page_id='register')
+
+    username = request.form.get('username', '').strip()
+    password = request.form.get('password', '')
+    errors = registration_errors(username, password, request.form.get('confirm_password', ''))
+    if not errors:
+        user = User(username=username)
+        user.set_password(password)
+        db.session.add(user)
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            errors.append('That username is already taken.')
+    if errors:
+        return render_template('auth/register.html', page_id='register',
+                               errors=errors, username=username), 400
+
+    flash(f'Account created for {username}.')
+    return redirect(url_for('habit_tracker'))
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """US-28: log in to an existing account to access saved habits and progress."""
+    if request.method == 'GET':
+        return render_template('auth/login.html', page_id='login')
+
+    username = request.form.get('username', '').strip()
+    password = request.form.get('password', '')
+    user = User.query.filter_by(username=username).first() if username else None
+    if user is None or not user.check_password(password):
+        return render_template('auth/login.html', page_id='login',
+                               errors=['Invalid username or password.'],
+                               username=username), 400
+
+    session['user_id'] = user.id
+    flash(f'Logged in as {user.username}.')
+    return redirect(url_for('habit_tracker'))
+
 
 @app.route('/habit-tracker', methods=['GET', 'POST'])
 def habit_tracker():
@@ -63,6 +133,23 @@ def complete_habit(habit_id):
     if habit.scheduled_days_list and WEEKDAYS[today.weekday()] not in habit.scheduled_days_list:
         abort(400, description='This habit is not scheduled for today.')
     habit.mark_complete(today)
+    if request.form.get('view') == 'today':
+        return redirect(url_for('habit_tracker', view='today'))
+    return redirect(url_for('habit_tracker'))
+
+
+@app.route('/habit-tracker/<int:habit_id>/completions/remove', methods=['POST'])
+def remove_completion(habit_id):
+    """US-25: remove a completion that was entered by mistake."""
+    habit = db.session.get(Habit, habit_id)
+    if habit is None:
+        abort(404)
+    try:
+        completed_on = date.fromisoformat(request.form.get('completed_on', '').strip())
+    except ValueError:
+        abort(400, description='Completion date must use the YYYY-MM-DD format.')
+    if not habit.remove_completion(completed_on):
+        abort(400, description='That date is not marked complete.')
     if request.form.get('view') == 'today':
         return redirect(url_for('habit_tracker', view='today'))
     return redirect(url_for('habit_tracker'))
@@ -152,6 +239,19 @@ def view_weekly_summary():
         previous_week_start=week_start - timedelta(days=7),
         next_week_start=(week_start + timedelta(days=7)
                          if week_start < current_week_start else None),
+@app.route('/habit-tracker/habits/<int:habit_id>/calendar')
+def view_habit_calendar(habit_id):
+    """US-17: show the last 30 days of one habit as a visual calendar."""
+    habit = db.session.get(Habit, habit_id)
+    if habit is None:
+        abort(404)
+    calendar_days = habit.calendar_days(date.today())
+    return render_template(
+        'apps/habit_tracker/calendar.html',
+        page_id='habit-tracker',
+        habit=habit,
+        calendar_days=calendar_days,
+        leading_blanks=range(calendar_days[0]['date'].weekday()),
     )
 
 
@@ -210,6 +310,22 @@ def edit_habit(habit_id):
     return redirect(url_for('habit_tracker'))
 
 
+@app.route('/habit-tracker/<int:habit_id>/delete', methods=['GET', 'POST'])
+def delete_habit(habit_id):
+    """Confirm before permanently removing a habit, its history, and reminders."""
+    habit = db.session.get(Habit, habit_id)
+    if habit is None:
+        abort(404)
+    if request.method == 'POST':
+        if request.form.get('confirm') != 'delete':
+            abort(400, description='Confirm deletion before removing this habit.')
+        db.session.delete(habit)
+        db.session.commit()
+        return redirect(url_for('habit_tracker'))
+    return render_template('apps/habit_tracker/delete.html',
+                           page_id='habit-tracker', habit=habit)
+
+
 @app.route('/habit-tracker/<int:habit_id>/category', methods=['POST'])
 def update_habit_category(habit_id):
     habit = db.session.get(Habit, habit_id)
@@ -235,6 +351,32 @@ def update_habit_reminder(habit_id):
             abort(400, description='Reminder time must use the HH:MM format.')
 
     habit.reminder_time = reminder_time or None
+    if reminder_time:
+        # A newly chosen time replaces any reminder that was turned off.
+        habit.paused_reminder_time = None
+    db.session.commit()
+    return redirect(url_for('habit_tracker'))
+
+
+@app.route('/habit-tracker/<int:habit_id>/reminder/off', methods=['POST'])
+def turn_off_reminder(habit_id):
+    """US-23: turn a habit's reminder off without losing its time."""
+    habit = db.session.get(Habit, habit_id)
+    if habit is None:
+        abort(404)
+    habit.turn_off_reminder()
+    db.session.commit()
+    return redirect(url_for('habit_tracker'))
+
+
+@app.route('/habit-tracker/<int:habit_id>/reminder/on', methods=['POST'])
+def turn_on_reminder(habit_id):
+    """US-23: turn a previously turned-off reminder back on."""
+    habit = db.session.get(Habit, habit_id)
+    if habit is None:
+        abort(404)
+    if not habit.turn_on_reminder():
+        abort(400, description='This habit has no reminder to turn back on.')
     db.session.commit()
     return redirect(url_for('habit_tracker'))
 
@@ -304,6 +446,10 @@ def init_db():
             if 'grace_day_enabled' not in habit_columns:
                 connection.execute(text(
                     'ALTER TABLE habit ADD COLUMN grace_day_enabled BOOLEAN NOT NULL DEFAULT 0'
+                ))
+            if 'paused_reminder_time' not in habit_columns:
+                connection.execute(text(
+                    'ALTER TABLE habit ADD COLUMN paused_reminder_time VARCHAR(5)'
                 ))
 
 # Called at import time so the schema exists under `flask run` too, not just
