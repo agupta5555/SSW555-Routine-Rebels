@@ -202,6 +202,22 @@ def view_completion_history(habit_id):
     )
 
 
+@app.route('/habit-tracker/habits/<int:habit_id>/calendar')
+def view_habit_calendar(habit_id):
+    """US-17: show the last 30 days of one habit as a visual calendar."""
+    habit = db.session.get(Habit, habit_id)
+    if habit is None:
+        abort(404)
+    calendar_days = habit.calendar_days(date.today())
+    return render_template(
+        'apps/habit_tracker/calendar.html',
+        page_id='habit-tracker',
+        habit=habit,
+        calendar_days=calendar_days,
+        leading_blanks=range(calendar_days[0]['date'].weekday()),
+    )
+
+
 
 def selected_frequency():
     frequency = request.form.get('frequency', '').strip().lower() or DEFAULT_FREQUENCY
