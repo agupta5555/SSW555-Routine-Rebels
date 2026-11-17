@@ -13,6 +13,16 @@ monitor their progress, and build consistent routines.
 - Aarnav Hariramani
 - Ayush Kakkar
 
+## Log in (US-28)
+
+Choose **Log in** to sign in with an existing username and password. Valid
+credentials start a session and return you to the habit tracker dashboard;
+invalid credentials show a single generic error without revealing whether the
+username exists. Username matching is case-insensitive, matching account
+creation (US-27).
+
+Regression tests: `uv run pytest tests/test_us28_log_in.py`.
+
 ## Record a habit completion (US-08)
 
 On the Habit Tracker, choose **Mark complete** for a habit due today. The

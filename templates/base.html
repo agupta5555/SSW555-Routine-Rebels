@@ -54,6 +54,7 @@
                             Habits
                         </span>
                     </a>
+                    <a href="{{ url_for('login') }}" class="px-4 py-2 rounded-lg text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-muted)] transition-colors duration-200 cursor-pointer">Log in</a>
                     <a href="{{ url_for('register') }}" class="px-4 py-2 rounded-lg text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-muted)] transition-colors duration-200 cursor-pointer">Create account</a>
                 </div>
                 <button class="md:hidden p-2 rounded-lg hover:bg-[var(--color-muted)] cursor-pointer" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu" aria-controls="mobileMenu" aria-expanded="false">
@@ -64,6 +65,7 @@
         <div id="mobileMenu" class="hidden md:hidden bg-[var(--color-card)] border-t border-[var(--color-border)]">
             <div class="px-2 pt-2 pb-3 space-y-1">
                 <a href="/habit-tracker" class="block px-3 py-2 rounded-md text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-muted)]">Habit Tracker</a>
+                <a href="{{ url_for('login') }}" class="block px-3 py-2 rounded-md text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-muted)]">Log in</a>
                 <a href="{{ url_for('register') }}" class="block px-3 py-2 rounded-md text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-muted)]">Create account</a>
             </div>
         </div>

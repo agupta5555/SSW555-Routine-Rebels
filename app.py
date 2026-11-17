@@ -1,7 +1,7 @@
 import re
 from datetime import date, datetime
 
-from flask import Flask, abort, flash, jsonify, redirect, render_template, request, url_for
+from flask import Flask, abort, flash, jsonify, redirect, render_template, request, session, url_for
 from sqlalchemy import inspect, text
 from sqlalchemy.exc import IntegrityError
 
@@ -67,6 +67,25 @@ def register():
                                errors=errors, username=username), 400
 
     flash(f'Account created for {username}.')
+    return redirect(url_for('habit_tracker'))
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """US-28: log in to an existing account to access saved habits and progress."""
+    if request.method == 'GET':
+        return render_template('auth/login.html', page_id='login')
+
+    username = request.form.get('username', '').strip()
+    password = request.form.get('password', '')
+    user = User.query.filter_by(username=username).first() if username else None
+    if user is None or not user.check_password(password):
+        return render_template('auth/login.html', page_id='login',
+                               errors=['Invalid username or password.'],
+                               username=username), 400
+
+    session['user_id'] = user.id
+    flash(f'Logged in as {user.username}.')
     return redirect(url_for('habit_tracker'))
 
 
