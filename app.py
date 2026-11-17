@@ -1,6 +1,5 @@
-from datetime import date, datetime, timedelta
 import re
-
+from datetime import date, datetime, timedelta
 
 from flask import Flask, abort, flash, jsonify, redirect, render_template, request, session, url_for
 from sqlalchemy import inspect, text
@@ -239,6 +238,9 @@ def view_weekly_summary():
         previous_week_start=week_start - timedelta(days=7),
         next_week_start=(week_start + timedelta(days=7)
                          if week_start < current_week_start else None),
+    )
+
+
 @app.route('/habit-tracker/habits/<int:habit_id>/calendar')
 def view_habit_calendar(habit_id):
     """US-17: show the last 30 days of one habit as a visual calendar."""

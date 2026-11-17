@@ -223,7 +223,7 @@ class Habit(db.Model):
         }
         completed = scheduled_dates.intersection(self.completed_dates_list)
         return {'scheduled': len(scheduled_dates), 'completed': len(completed)}
-      
+
     def calendar_days(self, as_of=None, number_of_days=30):
         """US-17: classify consecutive days for the habit calendar.
 
