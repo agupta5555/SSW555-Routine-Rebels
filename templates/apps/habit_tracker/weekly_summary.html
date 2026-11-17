@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Weekly Summary • Routine Rebels{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <a href="{{ url_for('habit_tracker') }}"
+        class="inline-flex min-h-[44px] items-center text-sm font-semibold text-[var(--color-primary)] hover:underline">
+        &larr; Back to habits
+    </a>
+
+    <section class="mt-4 bg-[var(--color-card)] rounded-2xl shadow-sm border border-[var(--color-border)] p-5 sm:p-7"
+        aria-labelledby="summary-title">
+        <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
+            <div>
+                <p class="text-sm font-semibold text-[var(--color-primary)]">Weekly progress</p>
+                <h2 id="summary-title" class="text-2xl font-bold text-[var(--color-foreground)]">Habit summary</h2>
+                <p class="mt-1 text-sm text-[var(--color-muted-foreground)]">
+                    {{ week_start.strftime('%B %d') }}&ndash;{{ through.strftime('%B %d, %Y') }}
+                    {% if (through - week_start).days < 6 %}(so far){% endif %}
+                </p>
+            </div>
+            <div class="flex gap-2">
+                <a href="{{ url_for('view_weekly_summary', week_start=previous_week_start.isoformat()) }}"
+                    class="inline-flex min-h-[44px] items-center px-3 py-2 text-sm font-semibold rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-muted)]">Previous week</a>
+                {% if next_week_start %}
+                <a href="{{ url_for('view_weekly_summary', week_start=next_week_start.isoformat()) }}"
+                    class="inline-flex min-h-[44px] items-center px-3 py-2 text-sm font-semibold rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-muted)]">Next week</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4 mb-7" data-testid="weekly-total">
+            <div class="rounded-xl bg-[var(--color-muted)] border border-[var(--color-border)] p-5">
+                <p class="text-sm text-[var(--color-muted-foreground)]">Scheduled habits completed</p>
+                <p class="mt-1 text-3xl font-bold text-[var(--color-foreground)]">
+                    <span data-testid="weekly-completed">{{ totals.completed }}</span>
+                    <span class="text-lg font-medium text-[var(--color-muted-foreground)]">of {{ totals.scheduled }}</span>
+                </p>
+            </div>
+            <div class="rounded-xl bg-[var(--color-primary)] p-5 text-[var(--color-on-primary)]">
+                <p class="text-sm opacity-90">Completion rate</p>
+                <p class="mt-1 text-3xl font-bold" data-testid="weekly-percentage">{{ total_percentage }}%</p>
+            </div>
+        </div>
+
+        <h3 class="text-lg font-semibold text-[var(--color-foreground)] mb-3">By habit</h3>
+        {% if rows %}
+        <div class="space-y-3">
+            {% for row in rows %}
+            <div class="rounded-xl border border-[var(--color-border)] p-4" data-testid="weekly-habit-row">
+                <div class="flex items-center justify-between gap-4">
+                    <span class="font-semibold text-[var(--color-foreground)]">{{ row.habit.name }}</span>
+                    <span class="text-sm font-semibold text-[var(--color-primary)]">{{ row.percentage }}%</span>
+                </div>
+                <p class="mt-1 text-sm text-[var(--color-muted-foreground)]">
+                    {{ row.completed }} of {{ row.scheduled }} scheduled check-in{{ 's' if row.scheduled != 1 else '' }} completed
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="rounded-xl border border-dashed border-[var(--color-border)] py-10 text-center">
+            <p class="font-medium text-[var(--color-foreground)]">No habits to summarize</p>
+            <p class="mt-1 text-sm text-[var(--color-muted-foreground)]">Create a habit to start tracking weekly progress.</p>
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
