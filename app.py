@@ -1,5 +1,5 @@
 import re
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from flask import Flask, abort, flash, jsonify, redirect, render_template, request, session, url_for
 from sqlalchemy import inspect, text
@@ -199,6 +199,45 @@ def view_completion_history(habit_id):
         total_completions=len(completions),
         current_streak=habit.current_streak(),
         completions=[day.isoformat() for day in completions],
+    )
+
+
+@app.route('/habit-tracker/weekly-summary')
+def view_weekly_summary():
+    """US-19: summarize scheduled habit completion for a calendar week."""
+    today = date.today()
+    current_week_start = today - timedelta(days=today.weekday())
+    week_start = history_date_arg('week_start') or current_week_start
+    if week_start.weekday() != 0:
+        abort(400, description='week_start must be a Monday.')
+    if week_start > current_week_start:
+        abort(400, description='week_start cannot be in the future.')
+
+    week_end = week_start + timedelta(days=6)
+    through = min(week_end, today)
+    rows = []
+    totals = {'scheduled': 0, 'completed': 0}
+    for habit in Habit.query.order_by(Habit.created_at.desc()).all():
+        progress = habit.progress_between(week_start, through)
+        percentage = round(progress['completed'] * 100 / progress['scheduled']) \
+            if progress['scheduled'] else 0
+        rows.append({'habit': habit, **progress, 'percentage': percentage})
+        totals['scheduled'] += progress['scheduled']
+        totals['completed'] += progress['completed']
+    total_percentage = round(totals['completed'] * 100 / totals['scheduled']) \
+        if totals['scheduled'] else 0
+
+    return render_template(
+        'apps/habit_tracker/weekly_summary.html',
+        page_id='habit-tracker',
+        rows=rows,
+        totals=totals,
+        total_percentage=total_percentage,
+        week_start=week_start,
+        through=through,
+        previous_week_start=week_start - timedelta(days=7),
+        next_week_start=(week_start + timedelta(days=7)
+                         if week_start < current_week_start else None),
     )
 
 

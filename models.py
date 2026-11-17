@@ -209,6 +209,21 @@ class Habit(db.Model):
              if (start is None or day >= start) and (end is None or day <= end)},
             reverse=True)
 
+    def progress_between(self, start, end):
+        """US-19: scheduled and completed occurrences in an inclusive range."""
+        created_on = self.created_at.date() if self.created_at else start
+        first_day = max(start, created_on)
+        if first_day > end:
+            return {'scheduled': 0, 'completed': 0}
+
+        scheduled_dates = {
+            first_day + timedelta(days=offset)
+            for offset in range((end - first_day).days + 1)
+            if self.is_scheduled_on(first_day + timedelta(days=offset))
+        }
+        completed = scheduled_dates.intersection(self.completed_dates_list)
+        return {'scheduled': len(scheduled_dates), 'completed': len(completed)}
+
     def calendar_days(self, as_of=None, number_of_days=30):
         """US-17: classify consecutive days for the habit calendar.
 

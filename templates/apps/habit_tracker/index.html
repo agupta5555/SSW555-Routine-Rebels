@@ -82,6 +82,8 @@
                 class="inline-flex items-center min-h-[44px] px-4 py-2 text-sm font-semibold rounded-lg border border-[var(--color-border)] {% if dashboard_view == 'today' %}bg-[var(--color-primary)] text-[var(--color-on-primary)]{% else %}text-[var(--color-foreground)] hover:bg-[var(--color-muted)]{% endif %}">Today</a>
             <a href="{{ url_for('habit_tracker', view='all') }}"{% if dashboard_view == 'all' %} aria-current="page"{% endif %}
                 class="inline-flex items-center min-h-[44px] px-4 py-2 text-sm font-semibold rounded-lg border border-[var(--color-border)] {% if dashboard_view == 'all' %}bg-[var(--color-primary)] text-[var(--color-on-primary)]{% else %}text-[var(--color-foreground)] hover:bg-[var(--color-muted)]{% endif %}">All habits</a>
+            <a href="{{ url_for('view_weekly_summary') }}"
+                class="inline-flex items-center min-h-[44px] px-4 py-2 text-sm font-semibold rounded-lg border border-[var(--color-border)] text-[var(--color-foreground)] hover:bg-[var(--color-muted)]">Weekly summary</a>
         </nav>
         {% if dashboard_view == 'today' %}
         <p class="text-sm text-[var(--color-muted-foreground)] mb-3">{{ today.strftime('%A, %B %d, %Y') }}</p>
