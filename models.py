@@ -139,6 +139,30 @@ class Habit(db.Model):
              if (start is None or day >= start) and (end is None or day <= end)},
             reverse=True)
 
+    def calendar_days(self, as_of=None, number_of_days=30):
+        """US-17: classify consecutive days for the habit calendar.
+
+        Completed days take precedence even if an older schedule has since
+        changed. A scheduled day is only missed after it has ended; the current
+        day remains available for completion.
+        """
+        as_of = as_of or date.today()
+        completions = set(self.completed_dates_list)
+        first_day = as_of - timedelta(days=number_of_days - 1)
+        days = []
+        for offset in range(number_of_days):
+            day = first_day + timedelta(days=offset)
+            if day in completions:
+                status = 'completed'
+            elif not self.is_scheduled_on(day):
+                status = 'not-scheduled'
+            elif day < as_of:
+                status = 'missed'
+            else:
+                status = 'scheduled'
+            days.append({'date': day, 'status': status})
+        return days
+
 def calculate_streak_status(completed_dates, today, grace_day=False, scheduled_days=None):
     """Use one grace day per Mon-Sun week, considering only scheduled days.
 

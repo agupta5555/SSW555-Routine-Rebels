@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}{{ habit.name }} Calendar • Routine Rebels{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <a href="{{ url_for('habit_tracker') }}"
+        class="inline-flex min-h-[44px] items-center text-sm font-semibold text-[var(--color-primary)] hover:underline">
+        &larr; Back to habits
+    </a>
+
+    <section class="mt-4 bg-[var(--color-card)] rounded-2xl shadow-sm border border-[var(--color-border)] p-5 sm:p-7"
+        aria-labelledby="calendar-title">
+        <div class="flex flex-wrap items-end justify-between gap-3 mb-6">
+            <div>
+                <p class="text-sm font-semibold text-[var(--color-primary)]">Last 30 days</p>
+                <h2 id="calendar-title" class="text-2xl font-bold text-[var(--color-foreground)]">
+                    {{ habit.name }} calendar
+                </h2>
+                <p class="mt-1 text-sm text-[var(--color-muted-foreground)]">
+                    {{ calendar_days[0].date.strftime('%B %d') }}&ndash;{{ calendar_days[-1].date.strftime('%B %d, %Y') }}
+                </p>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-x-5 gap-y-2 mb-5 text-sm" aria-label="Calendar legend">
+            <span class="inline-flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-emerald-500"></span>Completed</span>
+            <span class="inline-flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-rose-400"></span>Missed</span>
+            <span class="inline-flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-slate-200 border border-slate-300"></span>Not scheduled</span>
+            <span class="inline-flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-amber-100 border border-amber-400"></span>Scheduled today</span>
+        </div>
+
+        <div class="grid grid-cols-7 gap-1.5 sm:gap-2" data-testid="habit-calendar">
+            {% for weekday in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %}
+            <div class="pb-1 text-center text-xs font-semibold text-[var(--color-muted-foreground)]">{{ weekday }}</div>
+            {% endfor %}
+            {% for _ in leading_blanks %}<div aria-hidden="true"></div>{% endfor %}
+            {% for calendar_day in calendar_days %}
+                {% set status = calendar_day.status %}
+                <div data-date="{{ calendar_day.date.isoformat() }}" data-status="{{ status }}"
+                    aria-label="{{ calendar_day.date.strftime('%B %d, %Y') }}: {{ status|replace('-', ' ') }}"
+                    class="min-h-16 sm:min-h-20 rounded-lg border p-1.5 sm:p-2
+                        {% if status == 'completed' %}bg-emerald-100 border-emerald-400 text-emerald-900
+                        {% elif status == 'missed' %}bg-rose-100 border-rose-300 text-rose-900
+                        {% elif status == 'scheduled' %}bg-amber-50 border-amber-400 text-amber-900
+                        {% else %}bg-slate-100 border-slate-200 text-slate-500{% endif %}">
+                    <span class="block text-xs font-semibold">{{ calendar_day.date.day }}</span>
+                    <span class="mt-1 block text-center text-lg" aria-hidden="true">
+                        {% if status == 'completed' %}&#10003;{% elif status == 'missed' %}&times;{% elif status == 'scheduled' %}&bull;{% else %}&ndash;{% endif %}
+                    </span>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
